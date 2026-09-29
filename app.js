@@ -4,14 +4,14 @@
   const STORAGE_KEY = 'gymTimer.intervals';
   const SEEDED_KEY = 'gymTimer.seeded';
 
-  // Scroller options: 5s steps up to 1 minute. Warm up / cool down can also be off.
+  // Scroller options: 5s steps up to 1 minute. Warm Up / Cool Down can also be off.
   const WORK_TIMES = Array.from({ length: 12 }, (_, i) => (i + 1) * 5);
   const EDGE_TIMES = [0, ...WORK_TIMES];
   const WHEEL_OPTIONS = { high: WORK_TIMES, low: WORK_TIMES, warmup: EDGE_TIMES, cooldown: EDGE_TIMES };
   const MIN_SETS = 1;
   const MAX_SETS = 50;
 
-  const PHASE_LABEL = { warmup: 'Warm up', high: 'High', low: 'Low', cooldown: 'Cool down', done: 'Done' };
+  const PHASE_LABEL = { warmup: 'Warm Up', high: 'High', low: 'Low', cooldown: 'Cool Down', done: 'Done' };
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -34,7 +34,7 @@
       if (localStorage.getItem(SEEDED_KEY)) return;
       localStorage.setItem(SEEDED_KEY, '1');
       if (loadIntervals().length === 0) {
-        saveIntervals([{ id: newId(), sets: 8, high: 30, low: 15, warmup: 30, cooldown: 30 }]);
+        saveIntervals([{ id: newId(), sets: 3, high: 30, low: 15, warmup: 30, cooldown: 30 }]);
       }
     } catch (_) { /* storage unavailable */ }
   }
@@ -86,7 +86,7 @@
       li.innerHTML = `
         <div class="info">
           <div class="name">${shortTime(iv.high)}<span class="x">x</span>${shortTime(iv.low)}<span class="x">x</span>${iv.sets}</div>
-          <div class="meta">${clockTime(totalSeconds(iv))} total · warm up ${shortTime(iv.warmup)} · cool down ${shortTime(iv.cooldown)}</div>
+          <div class="meta">${clockTime(totalSeconds(iv))} total · Warm Up ${shortTime(iv.warmup)} · Cool Down ${shortTime(iv.cooldown)}</div>
         </div>
         <button class="edit">Edit</button>
         <button class="go" aria-label="Start">&#9654;</button>`;
@@ -150,7 +150,7 @@
 
   // ---------- Editor ----------
 
-  const editor = { id: null, sets: 8, wheels: {} };
+  const editor = { id: null, sets: 3, wheels: {} };
 
   function initEditor() {
     document.querySelectorAll('.wheel').forEach((el) => {
@@ -189,7 +189,7 @@
 
   function openEditor(id) {
     const existing = id ? loadIntervals().find((iv) => iv.id === id) : null;
-    const iv = existing || { sets: 8, high: 30, low: 15, warmup: 30, cooldown: 30 };
+    const iv = existing || { sets: 3, high: 30, low: 15, warmup: 30, cooldown: 30 };
     editor.id = existing ? existing.id : null;
     editor.sets = iv.sets;
     $('#edit-title').textContent = existing ? 'Edit interval' : 'New interval';

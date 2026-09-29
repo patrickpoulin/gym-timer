@@ -4,10 +4,10 @@ An editable interval timer for the gym that runs in a phone browser. Plain HTML,
 
 ## Features
 
-- **Saved intervals**, named by their setup: `high x low x sets` (for example `30s x 15s x 8`).
+- **Saved intervals**, named by their setup: `high x low x sets` (for example `30s x 15s x 3`).
 - **+ button** to create a new interval; **Edit** to change or delete one.
-- **Scroll wheels** for high intensity, low intensity, warm up and cool down, in 5 second steps up to 1 minute (warm up and cool down can also be turned off).
-- **Audio cues**: two dings when high intensity starts, one ding when low intensity starts, a lower ding for cool down and a three-ding chime when the workout is done.
+- **Scroll wheels** for high intensity, low intensity, Warm Up and Cool Down, in 5 second steps up to 1 minute (Warm Up and Cool Down can also be turned off).
+- **Audio cues**: two dings when high intensity starts, one ding when low intensity starts, a lower ding for Cool Down and a three-ding chime when the workout is done.
 - Pause, restart and skip controls, a progress bar and total time remaining.
 - Keeps the screen awake while the timer runs (where the browser supports it).
 

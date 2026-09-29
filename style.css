@@ -144,7 +144,7 @@ button {
 }
 .stepper output { min-width: 44px; text-align: center; font-size: 24px; font-weight: 700; }
 
-.wheels { display: flex; gap: 12px; margin-bottom: 16px; }
+.wheels { display: flex; gap: 12px; margin-bottom: 36px; }
 .wheel-col { flex: 1; min-width: 0; }
 .wheel-col label { display: block; text-align: center; margin-bottom: 6px; }
 .wheel-col label.high { color: var(--high); }
