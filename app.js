@@ -85,7 +85,7 @@
       const li = document.createElement('li');
       li.innerHTML = `
         <div class="info">
-          <div class="name">${shortTime(iv.high)}<span class="x">x</span>${shortTime(iv.low)}<span class="x">x</span>${iv.sets}</div>
+          <div class="name"><span class="high">${shortTime(iv.high)}</span><span class="x">x</span><span class="low">${shortTime(iv.low)}</span><span class="x">x</span>${iv.sets}</div>
           <div class="meta">${clockTime(totalSeconds(iv))} Total · Warm Up ${shortTime(iv.warmup)} · Cool Down ${shortTime(iv.cooldown)}</div>
         </div>
         <button class="edit">Edit</button>

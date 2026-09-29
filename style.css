@@ -83,6 +83,8 @@ button {
 }
 .list .info { flex: 1; min-width: 0; }
 .list .name { font-size: 22px; font-weight: 700; letter-spacing: .3px; }
+.list .name .high { color: var(--high); }
+.list .name .low { color: var(--low); }
 .list .name .x { color: var(--muted); font-weight: 400; margin: 0 2px; }
 .list .meta { margin-top: 4px; font-size: 13px; color: var(--muted); }
 .list .edit {
