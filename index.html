@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#111418">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gym Timer">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <title>Gym Timer</title>
+</head>
+<body>
+
+  <!-- List of saved intervals -->
+  <section id="view-list" class="view active">
+    <header class="bar">
+      <h1>Intervals</h1>
+    </header>
+    <ul id="interval-list" class="list"></ul>
+    <p id="empty" class="empty" hidden>No intervals yet.<br>Tap <strong>+</strong> to create one.</p>
+    <button id="btn-add" class="fab" aria-label="New interval">+</button>
+  </section>
+
+  <!-- Create / edit an interval -->
+  <section id="view-edit" class="view">
+    <header class="bar">
+      <button class="link" id="btn-edit-cancel">Cancel</button>
+      <h1 id="edit-title">New interval</h1>
+      <button class="link strong" id="btn-edit-save">Save</button>
+    </header>
+    <div class="edit-body">
+      <div class="preview-name" id="edit-preview">30s x 15s x 8</div>
+
+      <div class="field">
+        <label>Sets</label>
+        <div class="stepper">
+          <button type="button" id="sets-minus" aria-label="Fewer sets">&minus;</button>
+          <output id="sets-value">8</output>
+          <button type="button" id="sets-plus" aria-label="More sets">+</button>
+        </div>
+      </div>
+
+      <div class="wheels">
+        <div class="wheel-col">
+          <label class="high">High</label>
+          <div class="wheel" data-key="high"></div>
+        </div>
+        <div class="wheel-col">
+          <label class="low">Low</label>
+          <div class="wheel" data-key="low"></div>
+        </div>
+      </div>
+      <div class="wheels">
+        <div class="wheel-col">
+          <label>Warm up</label>
+          <div class="wheel" data-key="warmup"></div>
+        </div>
+        <div class="wheel-col">
+          <label>Cool down</label>
+          <div class="wheel" data-key="cooldown"></div>
+        </div>
+      </div>
+
+      <p class="total">Total time <strong id="edit-total">0:00</strong></p>
+      <button class="danger" id="btn-delete" hidden>Delete interval</button>
+    </div>
+  </section>
+
+  <!-- Running timer -->
+  <section id="view-run" class="view run">
+    <header class="bar">
+      <button class="link" id="btn-run-close">Close</button>
+      <h1 id="run-name"></h1>
+      <button class="link" id="btn-run-edit">Edit</button>
+    </header>
+    <div class="run-body">
+      <div class="phase" id="run-phase">Ready</div>
+      <div class="clock" id="run-clock">0:00</div>
+      <div class="sets" id="run-sets"></div>
+      <div class="progress"><div id="run-progress"></div></div>
+      <div class="remaining">Remaining <span id="run-remaining">0:00</span></div>
+      <div class="controls">
+        <button id="btn-reset" class="round small" aria-label="Restart">&#8634;</button>
+        <button id="btn-play" class="round big">Start</button>
+        <button id="btn-skip" class="round small" aria-label="Skip phase">&#9197;</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
