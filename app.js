@@ -224,11 +224,29 @@
 
   // ---------- Audio (Web Audio dings, no files needed) ----------
 
+  const VOLUME_KEY = 'gymTimer.volume';
+  const MAX_PEAK = 0.75;   // loudest ding level that stays clear of clipping
   let audioCtx = null;
+  let volume = loadVolume();   // 0-100, relative to the phone's media volume
+
+  function loadVolume() {
+    try {
+      const v = parseInt(localStorage.getItem(VOLUME_KEY), 10);
+      if (v >= 0 && v <= 100) return v;
+    } catch (_) { /* storage unavailable */ }
+    return 80;
+  }
+
+  function setVolume(v) {
+    volume = v;
+    try { localStorage.setItem(VOLUME_KEY, String(v)); } catch (_) { /* storage unavailable */ }
+  }
 
   function unlockAudio() {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
+    // On iOS, let the dings mix with a podcast or music instead of pausing it.
+    try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (_) { /* unsupported */ }
     if (!audioCtx) audioCtx = new Ctx();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     // A silent buffer played inside the tap unlocks audio on iOS.
@@ -242,7 +260,7 @@
     const ctx = audioCtx;
     const out = ctx.createGain();
     out.gain.setValueAtTime(0.0001, at);
-    out.gain.exponentialRampToValueAtTime(0.6, at + 0.005);
+    out.gain.exponentialRampToValueAtTime(MAX_PEAK * volume / 100, at + 0.005);
     out.gain.exponentialRampToValueAtTime(0.0001, at + length);
     out.connect(ctx.destination);
     // A bell-like tone: fundamental plus a quieter overtone.
@@ -259,7 +277,7 @@
   }
 
   function dings(count, freq) {
-    if (!audioCtx) return;
+    if (!audioCtx || volume === 0) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const t = audioCtx.currentTime + 0.02;
     for (let i = 0; i < count; i++) ding(t + i * 0.28, freq);
@@ -461,6 +479,17 @@
       tick();
     }
   });
+
+  const volumeInput = $('#volume');
+  function showVolume() {
+    volumeInput.value = volume;
+    volumeInput.style.setProperty('--fill', `${volume}%`);
+    $('#volume-value').textContent = `${volume}%`;
+  }
+  volumeInput.addEventListener('input', () => { setVolume(parseInt(volumeInput.value, 10)); showVolume(); });
+  // Play a sample ding when the slider is let go so the level can be judged against music.
+  volumeInput.addEventListener('change', () => { unlockAudio(); dings(1); });
+  showVolume();
 
   $('#btn-add').addEventListener('click', () => openEditor(null));
   $('#btn-play').addEventListener('click', togglePlay);

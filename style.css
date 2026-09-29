@@ -250,5 +250,45 @@ button {
 .round { border-radius: 50%; display: grid; place-items: center; }
 .round.small { width: 60px; height: 60px; background: rgba(255,255,255,.14); color: var(--text); }
 .round svg { display: block; fill: currentColor; }
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  margin-top: 5vh;
+  color: var(--muted);
+}
+.volume svg { flex: none; fill: currentColor; }
+.volume svg .wave { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.volume output { flex: none; width: 44px; text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+.volume input[type=range] {
+  flex: 1;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+          appearance: none;
+  --fill: 80%;
+}
+.volume input[type=range]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--text) var(--fill), rgba(255,255,255,.18) var(--fill));
+}
+.volume input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); }
+.volume input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--text); }
+.volume input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -9px;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.volume input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border: 0; border-radius: 50%; background: var(--text); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .round svg.stroke { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .round.big { width: 110px; height: 110px; background: var(--text); color: var(--bg); font-size: 22px; font-weight: 700; }
