@@ -111,10 +111,12 @@ button {
   border-radius: 50%;
   background: var(--accent);
   color: #fff;
-  font-size: 38px;
-  line-height: 1;
+  display: grid;
+  place-items: center;
   box-shadow: 0 6px 20px rgba(0,0,0,.45);
 }
+/* Icons are drawn as SVG so they sit exactly centered regardless of font metrics. */
+.fab svg, .stepper svg { display: block; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; }
 
 /* Editor */
 .edit-body { padding: 8px 16px; }
@@ -140,7 +142,8 @@ button {
   height: 44px;
   border-radius: 50%;
   background: var(--surface-2);
-  font-size: 24px;
+  display: grid;
+  place-items: center;
 }
 .stepper output { min-width: 44px; text-align: center; font-size: 24px; font-weight: 700; }
 
