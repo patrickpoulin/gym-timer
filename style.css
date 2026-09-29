@@ -100,8 +100,10 @@ button {
   border-radius: 50%;
   background: var(--low);
   color: #0b1a12;
-  font-size: 18px;
+  display: grid;
+  place-items: center;
 }
+.list .go svg { fill: currentColor; }
 .empty { text-align: center; color: var(--muted); margin-top: 30vh; line-height: 1.6; }
 
 .fab {
@@ -246,5 +248,7 @@ button {
 
 .controls { display: flex; align-items: center; gap: 28px; margin-top: 6vh; }
 .round { border-radius: 50%; display: grid; place-items: center; }
-.round.small { width: 60px; height: 60px; background: rgba(255,255,255,.1); font-size: 24px; }
+.round.small { width: 60px; height: 60px; background: rgba(255,255,255,.14); color: var(--text); }
+.round svg { display: block; fill: currentColor; }
+.round svg.stroke { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .round.big { width: 110px; height: 110px; background: var(--text); color: var(--bg); font-size: 22px; font-weight: 700; }

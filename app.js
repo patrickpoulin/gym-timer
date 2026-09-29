@@ -89,7 +89,7 @@
           <div class="meta">${clockTime(totalSeconds(iv))} Total · Warm Up ${shortTime(iv.warmup)} · Cool Down ${shortTime(iv.cooldown)}</div>
         </div>
         <button class="edit">Edit</button>
-        <button class="go" aria-label="Start">&#9654;</button>`;
+        <button class="go" aria-label="Start"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 5.2v13.6a1 1 0 0 0 1.5.86l10.2-6.8a1 1 0 0 0 0-1.72L8.5 4.34A1 1 0 0 0 7 5.2z"/></svg></button>`;
       li.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openEditor(iv.id); });
       li.querySelector('.go').addEventListener('click', (e) => { e.stopPropagation(); openRunner(iv.id); });
       li.querySelector('.info').addEventListener('click', () => openRunner(iv.id));
