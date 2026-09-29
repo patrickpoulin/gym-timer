@@ -11,6 +11,7 @@
   --cool: #5ab8ff;
   --danger: #ff5a4f;
   --item-h: 44px;
+  --footer-h: 60px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -71,7 +72,7 @@ button {
 .bar .link.strong { font-weight: 600; }
 
 /* Interval list */
-.list { list-style: none; margin: 8px 0 0; padding: 0 16px 120px; }
+.list { list-style: none; margin: 8px 0 0; padding: 0 16px calc(var(--footer-h) + 110px); }
 .list li {
   display: flex;
   align-items: center;
@@ -110,7 +111,7 @@ button {
   position: fixed;
   z-index: 2;
   right: 20px;
-  bottom: calc(var(--safe-bottom) + 24px);
+  bottom: calc(var(--safe-bottom) + var(--footer-h) + 20px);
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -252,40 +253,44 @@ button {
 .round.small { width: 60px; height: 60px; background: rgba(255,255,255,.14); color: var(--text); }
 .round svg { display: block; fill: currentColor; }
 
-/* Ding volume sits in a bar along the bottom of the intervals page, beside the + button. */
+/* Ding volume: a full-width bar pinned to the bottom of the intervals page. */
 .list-footer {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  min-height: calc(var(--safe-bottom) + 24px + 64px + 16px);
-  padding: 16px 104px calc(var(--safe-bottom) + 24px) 20px;
-  background: linear-gradient(transparent, var(--bg) 30%);
+  padding: 0 20px var(--safe-bottom);
+  background: var(--surface);
+  border-top: 1px solid var(--surface-2);
 }
 .volume {
   display: flex;
   align-items: center;
-  gap: 12px;
-  width: 100%;
-  color: var(--muted);
+  gap: 14px;
+  height: var(--footer-h);
+  color: var(--text);
 }
-.volume svg { flex: none; fill: currentColor; }
-.volume svg .wave { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
-.volume output { flex: none; width: 44px; text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+.volume svg { flex: none; display: block; }
+.volume output { flex: none; min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; font-size: 15px; color: var(--muted); }
 .volume input[type=range] {
   flex: 1;
-  height: 28px;
+  min-width: 0;
+  width: 100%;
+  height: 32px;
   margin: 0;
+  padding: 0;
+  border: 0;
   background: transparent;
   -webkit-appearance: none;
           appearance: none;
   --fill: 80%;
 }
+.volume input[type=range]:focus { outline: none; }
 .volume input[type=range]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
   height: 6px;
+  border: 0;
   border-radius: 3px;
   background: linear-gradient(to right, var(--text) var(--fill), rgba(255,255,255,.18) var(--fill));
 }
