@@ -86,7 +86,7 @@
       li.innerHTML = `
         <div class="info">
           <div class="name">${shortTime(iv.high)}<span class="x">x</span>${shortTime(iv.low)}<span class="x">x</span>${iv.sets}</div>
-          <div class="meta">${clockTime(totalSeconds(iv))} total · Warm Up ${shortTime(iv.warmup)} · Cool Down ${shortTime(iv.cooldown)}</div>
+          <div class="meta">${clockTime(totalSeconds(iv))} Total · Warm Up ${shortTime(iv.warmup)} · Cool Down ${shortTime(iv.cooldown)}</div>
         </div>
         <button class="edit">Edit</button>
         <button class="go" aria-label="Start">&#9654;</button>`;
@@ -192,7 +192,7 @@
     const iv = existing || { sets: 3, high: 30, low: 15, warmup: 30, cooldown: 30 };
     editor.id = existing ? existing.id : null;
     editor.sets = iv.sets;
-    $('#edit-title').textContent = existing ? 'Edit interval' : 'New interval';
+    $('#edit-title').textContent = existing ? 'Edit Interval' : 'New Interval';
     $('#btn-delete').hidden = !existing;
     show('view-edit');
     // Wheels need to be visible before they can scroll to a position.
@@ -434,7 +434,7 @@
 
     $('#run-phase').textContent = !run.started && !done ? 'Ready' : PHASE_LABEL[phase.type];
     $('#run-clock').textContent = done ? '0:00' : clockTime(left);
-    $('#run-sets').textContent = phase.set ? `Set ${phase.set} of ${iv.sets}` : (done ? 'Great work' : '');
+    $('#run-sets').textContent = phase.set ? `Set ${phase.set} of ${iv.sets}` : (done ? 'Great Work' : '');
 
     let remaining = left;
     for (let i = run.index + 1; i < run.phases.length; i++) remaining += run.phases[i].dur;
