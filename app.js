@@ -247,8 +247,13 @@
     if (!Ctx) return;
     // On iOS, let the dings mix with a podcast or music instead of pausing it.
     try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (_) { /* unsupported */ }
+    // After switching apps, iOS can leave the context "interrupted" or stuck
+    // "suspended" for good. A fresh context made inside a tap always plays.
+    if (audioCtx && audioCtx.state !== 'running') {
+      audioCtx.close().catch(() => {});
+      audioCtx = null;
+    }
     if (!audioCtx) audioCtx = new Ctx();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
     // A silent buffer played inside the tap unlocks audio on iOS.
     const src = audioCtx.createBufferSource();
     src.buffer = audioCtx.createBuffer(1, 1, 22050);
@@ -256,7 +261,15 @@
     src.start(0);
   }
 
-  function ding(at, freq = 1318.5, length = 0.9) {
+  // Wake the context after Safari comes back to the foreground. iOS reports
+  // "interrupted" (not "suspended") after another app took the audio.
+  function resumeAudio() {
+    if (audioCtx && audioCtx.state !== 'running' && audioCtx.state !== 'closed') {
+      audioCtx.resume().catch(() => {});
+    }
+  }
+
+  function ding(at,freq = 1318.5, length = 0.9) {
     const ctx = audioCtx;
     const out = ctx.createGain();
     out.gain.setValueAtTime(0.0001, at);
@@ -278,7 +291,7 @@
 
   function dings(count, freq) {
     if (!audioCtx || volume === 0) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    resumeAudio();
     const t = audioCtx.currentTime + 0.02;
     for (let i = 0; i < count; i++) ding(t + i * 0.28, freq);
   }
@@ -474,10 +487,22 @@
   // ---------- Wire up ----------
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && run.timer) {
+    if (document.visibilityState !== 'visible') return;
+    resumeAudio();
+    if (run.timer) {
       requestWakeLock();
       tick();
     }
+  });
+  window.addEventListener('pageshow', resumeAudio);
+  window.addEventListener('focus', resumeAudio);
+  // If iOS still won't let audio resume on its own, the next tap anywhere
+  // rebuilds it so the following dings are heard.
+  document.addEventListener('touchend', () => {
+    if (audioCtx && audioCtx.state !== 'running') unlockAudio();
+  }, { passive: true });
+  document.addEventListener('click', () => {
+    if (audioCtx && audioCtx.state !== 'running') unlockAudio();
   });
 
   const volumeInput = $('#volume');
