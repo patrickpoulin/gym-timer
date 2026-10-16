@@ -189,7 +189,7 @@
 
   function openEditor(id) {
     const existing = id ? loadIntervals().find((iv) => iv.id === id) : null;
-    const iv = existing || { sets: 3, high: 30, low: 15, warmup: 30, cooldown: 30 };
+    const iv = existing || { sets: 3, high: 30, low: 15, warmup: 5, cooldown: 5 };
     editor.id = existing ? existing.id : null;
     editor.sets = iv.sets;
     $('#edit-title').textContent = existing ? 'Edit Interval' : 'New Interval';
