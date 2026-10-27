@@ -222,12 +222,26 @@
     show('view-list');
   }
 
-  // ---------- Audio (Web Audio dings, no files needed) ----------
+  // ---------- Audio (dings rendered to WAV clips, no files needed) ----------
+  //
+  // iOS Safari often leaves a Web Audio context silent after switching apps
+  // while still reporting it as "running", so nothing can detect or repair it.
+  // A plain <audio> element recovers from those interruptions, so the dings are
+  // synthesized once into small WAV clips and played through one element.
 
   const VOLUME_KEY = 'gymTimer.volume';
   const MAX_PEAK = 0.75;   // loudest ding level that stays clear of clipping
-  let audioCtx = null;
+  const SAMPLE_RATE = 44100;
   let volume = loadVolume();   // 0-100, relative to the phone's media volume
+  let clips = {};              // "count:freq" -> blob URL at the current volume
+  let audioUnlocked = false;   // the element has been played inside a tap
+
+  // On iOS, let the dings mix with a podcast or music instead of pausing it.
+  try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (_) { /* unsupported */ }
+
+  const player = new Audio();
+  player.preload = 'auto';
+  const SILENCE = URL.createObjectURL(wavBlob(new Float32Array(SAMPLE_RATE / 20)));
 
   function loadVolume() {
     try {
@@ -240,60 +254,66 @@
   function setVolume(v) {
     volume = v;
     try { localStorage.setItem(VOLUME_KEY, String(v)); } catch (_) { /* storage unavailable */ }
+    // iOS ignores audio.volume, so the level is baked into the clips.
+    Object.values(clips).forEach((url) => URL.revokeObjectURL(url));
+    clips = {};
   }
 
+  function play(url) {
+    if (player.src !== url) player.src = url;
+    else player.currentTime = 0;
+    const p = player.play();
+    if (p) p.catch(() => {});
+  }
+
+  // iOS only lets an audio element play on its own once it has been played
+  // inside a tap. Call this from tap handlers.
   function unlockAudio() {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
-    // On iOS, let the dings mix with a podcast or music instead of pausing it.
-    try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (_) { /* unsupported */ }
-    // After switching apps, iOS can leave the context "interrupted" or stuck
-    // "suspended" for good. A fresh context made inside a tap always plays.
-    if (audioCtx && audioCtx.state !== 'running') {
-      audioCtx.close().catch(() => {});
-      audioCtx = null;
+    if (audioUnlocked && !player.paused) return;
+    audioUnlocked = true;
+    play(SILENCE);
+  }
+
+  // 16-bit mono PCM WAV from samples in [-1, 1].
+  function wavBlob(samples) {
+    const buf = new ArrayBuffer(44 + samples.length * 2);
+    const v = new DataView(buf);
+    const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); str(8, 'WAVE');
+    str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, SAMPLE_RATE, true); v.setUint32(28, SAMPLE_RATE * 2, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, samples.length * 2, true);
+    samples.forEach((x, i) => v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, x)) * 0x7fff, true));
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
+  // A bell-like tone: fundamental plus a quieter overtone, repeated count times.
+  function renderDings(count, freq, length = 0.9, gap = 0.28) {
+    const lead = 0.02;
+    const samples = new Float32Array(Math.ceil((lead + (count - 1) * gap + length) * SAMPLE_RATE));
+    const peak = MAX_PEAK * volume / 100;
+    const floor = 0.0001;
+    for (let n = 0; n < count; n++) {
+      const offset = Math.round((lead + n * gap) * SAMPLE_RATE);
+      for (let i = 0; i < length * SAMPLE_RATE; i++) {
+        const t = i / SAMPLE_RATE;
+        // Same envelope as before: 5 ms exponential attack, exponential decay.
+        const env = t < 0.005
+          ? floor * Math.pow(peak / floor, t / 0.005)
+          : peak * Math.pow(floor / peak, (t - 0.005) / (length - 0.005));
+        const w = 2 * Math.PI * freq * t;
+        samples[offset + i] += env * (Math.sin(w) + 0.25 * Math.sin(w * 2.76));
+      }
     }
-    if (!audioCtx) audioCtx = new Ctx();
-    // A silent buffer played inside the tap unlocks audio on iOS.
-    const src = audioCtx.createBufferSource();
-    src.buffer = audioCtx.createBuffer(1, 1, 22050);
-    src.connect(audioCtx.destination);
-    src.start(0);
+    return samples;
   }
 
-  // Wake the context after Safari comes back to the foreground. iOS reports
-  // "interrupted" (not "suspended") after another app took the audio.
-  function resumeAudio() {
-    if (audioCtx && audioCtx.state !== 'running' && audioCtx.state !== 'closed') {
-      audioCtx.resume().catch(() => {});
-    }
-  }
-
-  function ding(at,freq = 1318.5, length = 0.9) {
-    const ctx = audioCtx;
-    const out = ctx.createGain();
-    out.gain.setValueAtTime(0.0001, at);
-    out.gain.exponentialRampToValueAtTime(MAX_PEAK * volume / 100, at + 0.005);
-    out.gain.exponentialRampToValueAtTime(0.0001, at + length);
-    out.connect(ctx.destination);
-    // A bell-like tone: fundamental plus a quieter overtone.
-    [[freq, 1], [freq * 2.76, 0.25]].forEach(([f, g]) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = f;
-      gain.gain.value = g;
-      osc.connect(gain).connect(out);
-      osc.start(at);
-      osc.stop(at + length);
-    });
-  }
-
-  function dings(count, freq) {
-    if (!audioCtx || volume === 0) return;
-    resumeAudio();
-    const t = audioCtx.currentTime + 0.02;
-    for (let i = 0; i < count; i++) ding(t + i * 0.28, freq);
+  function dings(count, freq = 1318.5) {
+    if (volume === 0) return;
+    const key = `${count}:${freq}`;
+    if (!clips[key]) clips[key] = URL.createObjectURL(wavBlob(renderDings(count, freq)));
+    play(clips[key]);
   }
 
   function soundForPhase(type) {
@@ -487,23 +507,17 @@
   // ---------- Wire up ----------
 
   document.addEventListener('visibilitychange', () => {
+    // Re-prime the audio element on the first tap after coming back, in case
+    // iOS dropped its permission while Safari was in the background.
+    if (document.visibilityState === 'hidden') audioUnlocked = false;
     if (document.visibilityState !== 'visible') return;
-    resumeAudio();
     if (run.timer) {
       requestWakeLock();
       tick();
     }
   });
-  window.addEventListener('pageshow', resumeAudio);
-  window.addEventListener('focus', resumeAudio);
-  // If iOS still won't let audio resume on its own, the next tap anywhere
-  // rebuilds it so the following dings are heard.
-  document.addEventListener('touchend', () => {
-    if (audioCtx && audioCtx.state !== 'running') unlockAudio();
-  }, { passive: true });
-  document.addEventListener('click', () => {
-    if (audioCtx && audioCtx.state !== 'running') unlockAudio();
-  });
+  document.addEventListener('touchend', () => { if (!audioUnlocked) unlockAudio(); }, { passive: true });
+  document.addEventListener('click', () => { if (!audioUnlocked) unlockAudio(); });
 
   const volumeInput = $('#volume');
   function showVolume() {
